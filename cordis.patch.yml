@@ -1,0 +1,10 @@
+- insert:
+    - id: harnessmm
+      name: '@local/dsh-harnessmm'
+      config:
+        enabled: true
+        autoImprove: true
+        autoImproveAfterTurns: 20
+        autoImproveCooldownMs: 86400000
+        iterations: 2
+        trainingProfile: harnessmm-training

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "dsh-harnessmm-rsi"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "Native DSH SDK callbacks for exact upstream HarnessMM instruction RSI"
+[project.scripts]
+dsh-harnessmm-rsi = "dsh_harnessmm_rsi.__main__:main"
+[tool.setuptools.packages.find]
+include = ["dsh_harnessmm_rsi*"]
+[tool.setuptools.package-data]
+dsh_harnessmm_rsi = ["upstream-lock.json"]

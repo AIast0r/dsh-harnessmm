@@ -1,0 +1,10 @@
+{
+  "revision": "c8f19947e59feaa8103c05155bd79ef3eb084730",
+  "files": {
+    "phiagent/harness/codex_chisel.py": "d8231976d3b104f2a8f54364aeae6e6a83e4264f2a6f9de88b98a4361f377dfd",
+    "phiagent/harness/industrial_efficiency_rsi.py": "4ef3aa6e0a4120a7bff63faae184262c0802e9adde6507e4bbb24b1c299b71c6",
+    "phiagent/harness/benchmark_partition.py": "9919b63af2139f371e59f3e9ec3d73de63ed3918af7cd336f002c027736fa4ca",
+    "phiagent/learning/residual_meta_harness.py": "100636f874b9dccfbe443cd500a3b94e592268bc9f8b3f34282279aab6730bf2",
+    "phiagent/learning/residual_meta_training.py": "ec90ef7ce88cf00ddb1b2cb3f12cfcaea74fc0afc9023bffcb6d4bcd1419e201"
+  }
+}

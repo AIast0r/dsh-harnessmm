@@ -1,0 +1,267 @@
+{
+  "schema": "dsh-harnessmm-corpus/v1",
+  "name": "local-synthetic-python-v1",
+  "description": "20 synthetic independent function implementation exercises. Handwritten deterministic checks; small capability smoke corpus, not research benchmark evidence. Public specifications and oracles are locally authored.",
+  "tasks": [
+    {
+      "id": "stable_unique",
+      "unit_id": "stable_unique",
+      "public_prompt": "Implement `stable_unique` in solution.py using Python standard library only. Return unique hashable values preserving first occurrence. Function signature: stable_unique(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def stable_unique(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import stable_unique\nassert stable_unique([3, 1, 3, 2, 1]) == [3, 1, 2]\nassert stable_unique([]) == []\n"
+      ]
+    },
+    {
+      "id": "flatten_once",
+      "unit_id": "flatten_once",
+      "public_prompt": "Implement `flatten_once` in solution.py using Python standard library only. Flatten one level of a list of lists. Function signature: flatten_once(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def flatten_once(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import flatten_once\nassert flatten_once([[1, 2], [], [3]]) == [1, 2, 3]\nassert flatten_once([]) == []\n"
+      ]
+    },
+    {
+      "id": "count_words",
+      "unit_id": "count_words",
+      "public_prompt": "Implement `count_words` in solution.py using Python standard library only. Count whitespace-separated words in a string, case insensitive; preserve punctuation. Function signature: count_words(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def count_words(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import count_words\nassert count_words('A a b') == {'a': 2, 'b': 1}\nassert count_words('') == {}\n"
+      ]
+    },
+    {
+      "id": "rotate_left",
+      "unit_id": "rotate_left",
+      "public_prompt": "Implement `rotate_left` in solution.py using Python standard library only. Rotate a list left by integer k; handle empty input and negative k. Function signature: rotate_left(x, n). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def rotate_left(x, n):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import rotate_left\nassert rotate_left([1, 2, 3], 4) == [2, 3, 1]\nassert rotate_left([], 2) == []\nassert rotate_left([1, 2, 3], -1) == [3, 1, 2]\n"
+      ]
+    },
+    {
+      "id": "clamp",
+      "unit_id": "clamp",
+      "public_prompt": "Implement `clamp` in solution.py using Python standard library only. Clamp number x into inclusive range lo..hi. Function signature: clamp(x, n, fill). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def clamp(x, n, fill):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import clamp\nassert clamp(4, 0, 2) == 2\nassert clamp(-1, 0, 2) == 0\nassert clamp(1, 0, 2) == 1\n"
+      ]
+    },
+    {
+      "id": "is_palindrome",
+      "unit_id": "is_palindrome",
+      "public_prompt": "Implement `is_palindrome` in solution.py using Python standard library only. Return whether a string is a palindrome after keeping alphanumeric characters and casefolding. Function signature: is_palindrome(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def is_palindrome(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import is_palindrome\nassert is_palindrome('A man, a plan, a canal: Panama') == True\nassert is_palindrome('abc') == False\nassert is_palindrome('') == True\n"
+      ]
+    },
+    {
+      "id": "chunked",
+      "unit_id": "chunked",
+      "public_prompt": "Implement `chunked` in solution.py using Python standard library only. Split a list into chunks of positive size n. Raise ValueError for n<=0. Function signature: chunked(x, n). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def chunked(x, n):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import chunked\nassert chunked([1, 2, 3, 4, 5], 2) == [[1, 2], [3, 4], [5]]\nassert chunked([], 3) == []\ntry:\n chunked([1],0)\nexcept ValueError:\n pass\nelse:\n raise AssertionError(\"expected ValueError\")\n"
+      ]
+    },
+    {
+      "id": "merge_counts",
+      "unit_id": "merge_counts",
+      "public_prompt": "Implement `merge_counts` in solution.py using Python standard library only. Merge two dictionaries by adding values for shared keys; do not mutate inputs. Function signature: merge_counts(x, n). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def merge_counts(x, n):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import merge_counts\nassert merge_counts({'a': 2}, {'a': 1, 'b': 4}) == {'a': 3, 'b': 4}\nassert merge_counts({}, {}) == {}\n"
+      ]
+    },
+    {
+      "id": "longest_common_prefix",
+      "unit_id": "longest_common_prefix",
+      "public_prompt": "Implement `longest_common_prefix` in solution.py using Python standard library only. Return the longest common string prefix of a list of strings. Function signature: longest_common_prefix(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def longest_common_prefix(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import longest_common_prefix\nassert longest_common_prefix(['flower', 'flow', 'flight']) == 'fl'\nassert longest_common_prefix([]) == ''\nassert longest_common_prefix(['abc']) == 'abc'\n"
+      ]
+    },
+    {
+      "id": "transpose",
+      "unit_id": "transpose",
+      "public_prompt": "Implement `transpose` in solution.py using Python standard library only. Transpose a rectangular matrix list of lists. Empty matrix returns []. Function signature: transpose(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def transpose(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import transpose\nassert transpose([[1, 2], [3, 4]]) == [[1, 3], [2, 4]]\nassert transpose([]) == []\n"
+      ]
+    },
+    {
+      "id": "run_length",
+      "unit_id": "run_length",
+      "public_prompt": "Implement `run_length` in solution.py using Python standard library only. Return consecutive character runs as a list of (character,count) tuples. Function signature: run_length(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def run_length(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import run_length\nassert run_length('aaabbc') == [('a', 3), ('b', 2), ('c', 1)]\nassert run_length('') == []\n"
+      ]
+    },
+    {
+      "id": "balanced",
+      "unit_id": "balanced",
+      "public_prompt": "Implement `balanced` in solution.py using Python standard library only. Check balanced (), [], {} brackets, ignoring all other characters. Function signature: balanced(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def balanced(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import balanced\nassert balanced('a(b[c]{d})') == True\nassert balanced('([)]') == False\nassert balanced('') == True\n"
+      ]
+    },
+    {
+      "id": "moving_sum",
+      "unit_id": "moving_sum",
+      "public_prompt": "Implement `moving_sum` in solution.py using Python standard library only. Return sums of all contiguous windows of positive size n; [] if n exceeds length. Function signature: moving_sum(x, n). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def moving_sum(x, n):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import moving_sum\nassert moving_sum([1, 2, 3, 4], 2) == [3, 5, 7]\nassert moving_sum([1], 2) == []\n"
+      ]
+    },
+    {
+      "id": "invert_multimap",
+      "unit_id": "invert_multimap",
+      "public_prompt": "Implement `invert_multimap` in solution.py using Python standard library only. Invert dict key -> list of values into value -> list of keys, preserving input iteration order and repeated entries. Function signature: invert_multimap(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def invert_multimap(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import invert_multimap\nassert invert_multimap({'a': [1, 2], 'b': [1]}) == {1: ['a', 'b'], 2: ['a']}\nassert invert_multimap({}) == {}\n"
+      ]
+    },
+    {
+      "id": "parse_pairs",
+      "unit_id": "parse_pairs",
+      "public_prompt": "Implement `parse_pairs` in solution.py using Python standard library only. Parse comma separated key=value pairs to a dict, stripping whitespace; empty string gives {}; later keys win. Function signature: parse_pairs(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def parse_pairs(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import parse_pairs\nassert parse_pairs(' a=1, b=2,a=3 ') == {'a': '3', 'b': '2'}\nassert parse_pairs('') == {}\n"
+      ]
+    },
+    {
+      "id": "gcd_all",
+      "unit_id": "gcd_all",
+      "public_prompt": "Implement `gcd_all` in solution.py using Python standard library only. Return nonnegative gcd of a list of integers, returning 0 for an empty list. Function signature: gcd_all(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def gcd_all(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import gcd_all\nassert gcd_all([12, -18, 24]) == 6\nassert gcd_all([]) == 0\nassert gcd_all([0, 0]) == 0\n"
+      ]
+    },
+    {
+      "id": "intersection_ordered",
+      "unit_id": "intersection_ordered",
+      "public_prompt": "Implement `intersection_ordered` in solution.py using Python standard library only. Return unique values present in both input lists, in order of first list. Function signature: intersection_ordered(x, n). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def intersection_ordered(x, n):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import intersection_ordered\nassert intersection_ordered([3, 1, 3, 2], [1, 3]) == [3, 1]\nassert intersection_ordered([], [1]) == []\n"
+      ]
+    },
+    {
+      "id": "is_sorted",
+      "unit_id": "is_sorted",
+      "public_prompt": "Implement `is_sorted` in solution.py using Python standard library only. Return True if a list is in nondecreasing order. Function signature: is_sorted(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def is_sorted(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import is_sorted\nassert is_sorted([1, 1, 2]) == True\nassert is_sorted([2, 1]) == False\nassert is_sorted([]) == True\n"
+      ]
+    },
+    {
+      "id": "pad_right",
+      "unit_id": "pad_right",
+      "public_prompt": "Implement `pad_right` in solution.py using Python standard library only. Pad a string on right to minimum width using a single character fill; never truncate. Function signature: pad_right(x, n, fill). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def pad_right(x, n, fill):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import pad_right\nassert pad_right('ab', 5, 'x') == 'abxxx'\nassert pad_right('abc', 2, 'x') == 'abc'\n"
+      ]
+    },
+    {
+      "id": "group_by_length",
+      "unit_id": "group_by_length",
+      "public_prompt": "Implement `group_by_length` in solution.py using Python standard library only. Group strings by their length preserving their order, returning a dictionary. Function signature: group_by_length(x). Return the result, do not print. Add reasonable local checks if useful.",
+      "seed_files": {
+        "solution.py": "def group_by_length(x):\n    raise NotImplementedError\n"
+      },
+      "verifier_argv": [
+        "python3",
+        "-c",
+        "from solution import group_by_length\nassert group_by_length(['a', 'bb', 'c']) == {1: ['a', 'c'], 2: ['bb']}\nassert group_by_length([]) == {}\n"
+      ]
+    }
+  ]
+}

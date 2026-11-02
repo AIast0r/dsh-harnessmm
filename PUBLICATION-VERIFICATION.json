@@ -1,0 +1,17 @@
+{
+  "version": "0.1.4",
+  "date": "2026-11-02",
+  "nodeTests": {
+    "passed": 15,
+    "failed": 0
+  },
+  "pythonAndNativeSdkTests": {
+    "passed": 22,
+    "failed": 0
+  },
+  "modelCallsDuringPublication": 0,
+  "runtimeCodeChanged": false,
+  "publishedState": "source and clean package; no credentials or runtime/job state",
+  "sourceCompatibility": "Node >=22.19.0; DSH >=0.2.1-rc.2 <0.2.2",
+  "limits": "Native fixtures use the maintainer SDK checkout and installed package. No completed live optimization campaign or measured savings claimed."
+}
