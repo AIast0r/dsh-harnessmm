@@ -1,0 +1,77 @@
+name: Package installable DSH TGZ
+on:
+  push:
+    branches: [fix/windows-security-hardening]
+    paths:
+      - 'package.json'
+      - 'index.mjs'
+      - 'controller.mjs'
+      - 'jobs.mjs'
+      - 'security_utils.mjs'
+      - 'cordis.patch.yml'
+      - 'python/**'
+      - 'vendor/**'
+      - 'corpora/**'
+      - '.github/workflows/package-tgz.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify sources before packaging
+        run: |
+          node --check index.mjs
+          node --check controller.mjs
+          node --check jobs.mjs
+          node --check security_utils.mjs
+          python3 -m py_compile python/dsh_harnessmm_rsi/runner.py
+          node --test tests/security-hardening.test.mjs
+      - name: Build and inspect the installable npm tarball
+        id: pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="$(npm pack --ignore-scripts --pack-destination . --silent)"
+          echo "file=$package" >> "$GITHUB_OUTPUT"
+          tar -tzf "$package" > package-contents.txt
+          grep -qx 'package/package.json' package-contents.txt
+          grep -qx 'package/index.mjs' package-contents.txt
+          grep -qx 'package/security_utils.mjs' package-contents.txt
+          grep -qx 'package/cordis.patch.yml' package-contents.txt
+          grep -qx 'package/python/dsh_harnessmm_rsi/runner.py' package-contents.txt
+          ! grep -E '^package/(node_modules|\.git)/' package-contents.txt
+          sha256sum "$package" > "$package.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dsh-harnessmm-tgz
+          path: |
+            ${{ steps.pack.outputs.file }}
+            ${{ steps.pack.outputs.file }}.sha256
+            package-contents.txt
+          if-no-files-found: error
+      - name: Publish direct-download prerelease
+        if: github.event_name == 'push' && github.ref == 'refs/heads/fix/windows-security-hardening'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v0.1.5-security.1"
+          file="${{ steps.pack.outputs.file }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$file" "$file.sha256" --clobber
+          else
+            gh release create "$tag" "$file" "$file.sha256" \
+              --target "$GITHUB_SHA" \
+              --title "DSH HarnessMM 0.1.5-security.1 (unmerged security fixes)" \
+              --notes "Installable DSH plugin archive built from AIast0r/dsh-harnessmm fix/windows-security-hardening. Includes Windows EPERM fix, privacy-preserving audit and opt-in-only RSI. PR #1 is still draft; test in an isolated DSH profile." \
+              --prerelease
+          fi

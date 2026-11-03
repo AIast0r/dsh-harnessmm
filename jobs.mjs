@@ -12,7 +12,7 @@ export class ImprovementJobs{
  environment(){return {...process.env,PYTHONPATH:[path.join(root,'python'),path.join(root,'vendor/harnessmm'),process.env.PYTHONPATH].filter(Boolean).join(path.delimiter),DSH_HARNESSMM_EXTENSION_ROOT:root,DSH_HARNESSMM_TRAINING:'1',DSH_HARNESSMM_NO_POLICY:'1'};}
  status(){if(!this.child&&fs.existsSync(this.statePath))this.state=read(this.statePath);return {...this.state,active:!!this.child||(this.state.status==='running'&&alive(this.state.pid))};}
  start(route,reason='manual'){
-  if(this.disposed)throw Error('Extension is unloading');if(this.child)throw Error('A HarnessMM improvement run is already active');
+  if(this.disposed)throw Error('Extension is unloading');if(!this.config.allowUnsafeCodeExecution)throw Error('RSI executes generated code without a sandbox. Explicitly set allowUnsafeCodeExecution=true to opt in');if(this.child)throw Error('A HarnessMM improvement run is already active');
   if(!route?.provider||!route?.model)throw Error('Select a native provider/model before starting improvement');
   const directory=path.join(this.config.dataDirectory,'runs',new Date().toISOString().replaceAll(':','-')+'-'+randomUUID().slice(0,8));fs.mkdirSync(directory,{recursive:true,mode:0o700});
   const args=['-m','dsh_harnessmm_rsi','train','--corpus',this.config.corpusPath,'--output',directory,'--dsh-bin',this.config.dshExecutable,'--dsh-home',this.config.dshHome,'--profile',this.config.trainingProfile,'--provider',route.provider,'--model',route.model,'--iterations',String(this.config.iterations),'--timeout',String(this.config.episodeTimeoutMs/1000)];if(route.reasoning_effort)args.push('--reasoning-effort',route.reasoning_effort);
@@ -41,5 +41,35 @@ export class ImprovementJobs{
   if(typeof value.instruction!=='string')throw Error('Invalid policy instruction');if(value.application!=='prompt_suffix'||typeof value.prompt_suffix!=='string')throw Error('Policy deployment must match evaluated prompt_suffix');this.cache.set(key,value.prompt_suffix);return value.prompt_suffix;
  }
  async dispose(){this.disposed=true;await this.cancel();}
- async cancel(){const child=this.child;if(!child){if(this.status().active)throw Error('This improvement run is owned by another DSH instance; cancel it in that instance');return;}await new Promise(resolve=>{child.once('exit',resolve);try{if(process.platform==='win32')child.kill('SIGTERM');else process.kill(-child.pid,'SIGTERM');}catch(e){if(e.code!=='ESRCH')throw e;resolve();}const timer=setTimeout(()=>{try{if(process.platform==='win32')child.kill('SIGKILL');else process.kill(-child.pid,'SIGKILL');}catch(e){if(e.code!=='ESRCH')this.record({kind:'harnessmm/rsi-stop-error',error:e.message});}},5000);timer.unref();child.once('exit',()=>clearTimeout(timer));});}
+ async cancel(){
+  const child=this.child;
+  if(!child){if(this.status().active)throw Error('This improvement run is owned by another DSH instance; cancel it in that instance');return;}
+  if(child.exitCode!==null||child.signalCode!==null)return;
+  await new Promise(resolve=>{
+    let timer;
+    const done=()=>{if(timer)clearTimeout(timer);resolve();};
+    child.once('exit',done);
+    const stop=(force)=>{
+      try{
+        if(process.platform==='win32'){
+          // Stop the complete SDK/Python subtree, not just the top-level process.
+          const systemRoot=process.env.SystemRoot||'C:\\Windows';
+          const exe=path.join(systemRoot,'System32','taskkill.exe');
+          const cmd=fs.existsSync(exe)?exe:'taskkill';
+          const result=spawnSync(cmd,['/PID',String(child.pid),'/T','/F'],{windowsHide:true,timeout:8000,stdio:'ignore'});
+          if(result.error)throw result.error;
+          if(result.status!==0&&child.exitCode===null)child.kill('SIGKILL');
+        }else process.kill(-child.pid,force?'SIGKILL':'SIGTERM');
+      }catch(error){
+        if(error.code!=='ESRCH'){
+          this.record({kind:'harnessmm/rsi-stop-error',error_code:error.code||'unknown'});
+          try{child.kill('SIGKILL');}catch{}
+        }
+      }
+    };
+    stop(false);
+    timer=setTimeout(()=>{if(child.exitCode===null)stop(true);},5000);
+    timer.unref();
+  });
+ }
 }

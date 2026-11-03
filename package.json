@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-harnessmm",
-  "version": "0.1.4",
+  "version": "0.1.5-security.1",
   "type": "module",
   "description": "Provider-independent HarnessMM guarded decision reuse and protected self-improvement for DeepSeek Harness",
   "license": "Apache-2.0",
