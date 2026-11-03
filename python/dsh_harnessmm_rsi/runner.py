@@ -2,7 +2,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import shutil
 import signal
 import subprocess
@@ -48,7 +48,7 @@ def load_corpus(path):
             raise ValueError('unit_id and public_prompt required')
         for name, content in task.get('seed_files',{}).items():
             p=PurePosixPath(name)
-            if p.is_absolute() or '..' in p.parts or not p.parts or '\\' in name or not isinstance(content,str):
+            if (not isinstance(content,str) or p.is_absolute() or '..' in p.parts or not p.parts or '\\' in name or ':' in name or PureWindowsPath(name).drive or PureWindowsPath(name).root or any(part.rstrip(' .').upper().split('.')[0] in {'CON','PRN','AUX','NUL',*(f'COM{i}' for i in range(1,10)),*(f'LPT{i}' for i in range(1,10))} for part in p.parts) or any(part.endswith((' ','.')) for part in p.parts)):
                 raise ValueError('unsafe seed file path')
         argv=task.get('verifier_argv')
         if not isinstance(argv,list) or not argv or not all(isinstance(s,str) and s for s in argv):
@@ -101,22 +101,32 @@ def cancellation_signals():
 
 def launch_process(argv, *, cwd, input_text, timeout, env):
     start=time.monotonic()
-    proc=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=env,start_new_session=True)
+    proc=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=env,start_new_session=(os.name!='nt'),creationflags=(subprocess.CREATE_NEW_PROCESS_GROUP if os.name=='nt' else 0))
     status=None
     try:
         stdout,stderr=proc.communicate(input_text,timeout=timeout)
     except BaseException as error:
         status='timeout' if isinstance(error,subprocess.TimeoutExpired) else 'cancelled'
         def send(sig):
-            try: os.killpg(proc.pid,sig)
-            except ProcessLookupError: pass
+            if os.name == 'nt':
+                # Windows has no os.killpg: terminate the process tree with taskkill /T.
+                system_root=os.environ.get('SystemRoot',r'C:\Windows')
+                taskkill=Path(system_root)/'System32'/'taskkill.exe'
+                executable=str(taskkill) if taskkill.is_file() else 'taskkill'
+                try:
+                    result=subprocess.run([executable,'/PID',str(proc.pid),'/T','/F'],capture_output=True,timeout=8,check=False)
+                    if result.returncode and proc.poll() is None: proc.kill()
+                except (OSError,subprocess.TimeoutExpired):
+                    if proc.poll() is None: proc.kill()
+            else:
+                try: os.killpg(proc.pid,sig)
+                except ProcessLookupError: pass
         send(signal.SIGTERM)
         try: stdout,stderr=proc.communicate(timeout=4)
         except BaseException:
             send(signal.SIGKILL);stdout,stderr=proc.communicate()
         finally:
-            # A worker may close its own pipes while a descendant is still alive.
-            # The SDK child is not detached; its tools inherit this episode group.
+            # Terminate remaining descendants, even if their parent has exited.
             send(signal.SIGKILL)
         if not isinstance(error,(subprocess.TimeoutExpired,KeyboardInterrupt)): raise
     return {'returncode':proc.returncode,'stdout':stdout,'stderr':stderr,'status':status or ('completed' if proc.returncode==0 else 'failed'),'elapsed_seconds':time.monotonic()-start}
@@ -220,7 +230,10 @@ class NativeCallbacks:
                 # or prompt. A local trusted deterministic command executes after actor exit.
                 try: verification=launch_process(self.tasks[request['task']['task_id']]['verifier_argv'],cwd=folder,input_text='',timeout=min(self.timeout,60),env=env)
                 except OSError as error: verification={'status':'failed','returncode':None,'stderr':str(error),'stdout':''}
-            artifact={**result,'request_id':request['request_id'],'usage':usage,'verification':verification,
+            artifact={'status':result.get('status'),'returncode':result.get('returncode'),'elapsed_seconds':result.get('elapsed_seconds'),
+                      'stdout_sha256':digest(result.get('stdout','').encode()),'stderr_sha256':digest(result.get('stderr','').encode()),
+                      'request_id':request['request_id'],'usage':usage,
+                      'verification':None if verification is None else {'status':verification.get('status'),'returncode':verification.get('returncode'),'stdout_sha256':digest(verification.get('stdout','').encode()),'stderr_sha256':digest(verification.get('stderr','').encode())},
                       'runtime_mode':env['DSH_HARNESSMM_ENABLED'],'sampling_seed_supported':False,
                       'actor_prompt_sha256':digest(prompt.encode()),'native_runtime_contract':'official native DSH SDK; persistent HarnessMM extension when configured; author callbacks unchanged'}
             write_json(self.artifact_dir/(request['request_id']+'.json'),artifact)
